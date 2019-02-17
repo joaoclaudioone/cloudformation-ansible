@@ -5,7 +5,7 @@
     state: "{{ state }}"
     region: "{{ region }}"
     disable_rollback: true
-    template: "roles/vpc/templates/vpc_cloudformation_template.yml"
+    template: "roles/cloudformation/templates/vpc_cloudformation_template.yml"
     template_parameters:
       EnvironmentName: "{{ env }}"
       VpcCIDR: "{{ vpccidr }}"

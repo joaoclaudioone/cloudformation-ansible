@@ -24,6 +24,8 @@
         "ami_description": "System engineer deploy",
         "vpc_id": "{{user `aws_vpc_id`}}",
         "subnet_id": "{{user `aws_subnet_id`}}",
+        "spot_price": "auto",
+        "spot_price_auto_product": "Linux/UNIX",
         "launch_block_device_mappings": [{
             "device_name": "/dev/sdx",
             "volume_size": "8",

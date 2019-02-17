@@ -1,0 +1,4 @@
+---
+
+- name: supervisord state stopped
+  service: name=supervisord state=stopped

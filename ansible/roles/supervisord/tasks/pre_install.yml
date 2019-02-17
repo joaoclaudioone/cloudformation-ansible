@@ -1,0 +1,14 @@
+- name: removing old installation dir
+  shell: rm -rf /tmp/supervisor_install/*
+
+- name: create installation temporary directory
+  file: dest=/tmp/supervisor_install mode=755 state=directory
+
+- name: create supervisor config directory /etc/supervisor
+  file: dest=/etc/supervisor mode=700 owner=root group=root state=directory
+
+- name: create supervisor services config directory /etc/supervisor/conf.d
+  file: dest=/etc/supervisor/conf.d mode=700 owner=root group=root state=directory
+
+- name: creating log dir
+  file: dest=/var/log/supervisord mode=760 owner=root group=root state=directory

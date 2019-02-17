@@ -1,0 +1,9 @@
+---
+- name: Create users
+  include: users.yml
+
+- name: Create filesystem
+  include: fs.yml
+
+- name: Deploy app
+  include: deploy.yml

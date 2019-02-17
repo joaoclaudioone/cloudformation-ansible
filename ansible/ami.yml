@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    app_name: "systems-engineer-interview"
+    app_origin: "***REMOVED*** "
+    app_dest: "/app/bin"
+    app_user_adm: "appuser"
+    app_group_adm: "appgroup"
+  roles:
+    - role: os-update
+    - role: deploy
+    - role: supervisord
+
+  tasks:
+    - name: enable password login
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication no"
+        line: "PasswordAuthentication yes"
+        state: present

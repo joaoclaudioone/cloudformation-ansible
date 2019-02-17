@@ -1,0 +1,3 @@
+---
+packages:
+  - { url: '{{ app_origin }}', mode: '0777', owner: {{ app_user_adm }}, group: {{ app_group_adm }}, dest: {{ app_dest }} }

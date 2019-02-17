@@ -1,0 +1,6 @@
+---
+- name: Create VPC Stack
+  include: vpc.yml
+  when: create_vpc
+  tags:
+    - create_vpc

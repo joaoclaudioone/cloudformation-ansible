@@ -1,22 +1,24 @@
 ---
 - name: format ext4 /app
   filesystem: fstype=ext4 dev={{ pv_device }}
-  tags:
-     - fs
 
 - name: mount fs
   mount:
    name: /app
-       src: "{{ pv_device }}"
-       fstype: ext4
-       state: mounted
-   tags:
-     - fs
+   src: '{{ pv_device }}'
+   fstype: ext4
+   state: mounted
+  tags:
+    - fs
 
 - name: Creating application fs structure
- file: path={{ item.directory }} owner={{ app_user_adm }} group={{ app_group_adm }} mode={{ item.mode }} state=directory
-   with_items:
-     - { directory: "/app", mode: "0750" }
-     - { directory: "/app/bin", mode: "0750" }
-   tags:
-     - fs
+  file:
+    path: "{{ item.directory }}"
+    owner: "{{ app_user_adm }}"
+    group: "{{ app_group_adm }}"
+    mode: "{{ item.mode }}"
+    state: directory
+    force: yes
+  with_items:
+     - { directory: '/app', mode: '0750' }
+     - { directory: '/app/bin', mode: '0750' }

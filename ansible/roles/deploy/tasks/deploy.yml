@@ -9,10 +9,10 @@
   with_items: '{{ packages }}'
 
 - name: copy run.sh
-    copy:
-      src: app/bin/run.sh
-      dest: '{{ app_dest }}'
-      owner: '{{ app_user_adm }}'
-      group: '{{ app_group_adm }}'
-      mode: 0644
-    when: app_name: 'systems-engineer-interview'
+  copy:
+    src: app/bin/run.sh
+    dest: '{{ app_dest }}'
+    owner: '{{ app_user_adm }}'
+    group: '{{ app_group_adm }}'
+    mode: 0644
+  when: app_name == 'systems-engineer-interview'

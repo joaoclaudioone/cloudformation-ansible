@@ -1,2 +1,3 @@
 ---
-# vars file for deploy
+fs: True
+pv_device: "/dev/sdx"

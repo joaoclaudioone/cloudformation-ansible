@@ -1,11 +1,11 @@
 ---
 - name: Create app adm group's
   group:
-   name={{ app_group_adm }}
+   name='{{ app_group_adm }}'
 
 - name: Create App User
   user:
-   name={{ app_user_adm }}
+   name='{{ app_user_adm }}'
    shell=/bin/bash
    groups={{ app_group_adm }}
    state=present

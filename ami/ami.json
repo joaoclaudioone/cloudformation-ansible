@@ -1,0 +1,47 @@
+{
+    "variables": {
+        "aws_access_key": "{{env `aws_access_key`}}",
+        "aws_secret_key": "{{env `aws_secret_key`}}",
+        "aws_vpc_id": "",
+        "aws_subnet_id": "",
+        "aws_ami": "",
+        "aws_region": "{{env `aws_region`}}",
+        "ssh_username": "ec2-user",
+        "version": "",
+        "ami_label": "sys-engineer"
+    },
+    "builders": [{
+        "type": "amazon-ebs",
+        "communicator": "ssh",
+        "associate_public_ip_address": true,
+        "access_key": "{{user `aws_access_key`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "region": "{{ user `aws_region`}}",
+        "source_ami": "{{ user `aws_ami`}}",
+        "instance_type": "t3.micro",
+        "ssh_username": "{{user `ssh_username`}}",
+        "ami_name": "{{user `ami_label`}}-{{user `version`}}",
+        "ami_description": "System engineer deploy",
+        "vpc_id": "{{user `aws_vpc_id`}}",
+        "subnet_id": "{{user `aws_subnet_id`}}",
+        "launch_block_device_mappings": [{
+            "device_name": "/dev/sdx",
+            "volume_size": "8",
+            "volume_type": "gp2",
+            "delete_on_termination": true
+        }],
+        "tags": {
+            "Name": "ami-deploy",
+            "project": "system-engineer",
+            "version": "{{user `version`}}",
+            "created_at": "v{{isotime \"200601021504\"}}"
+        }
+    }],
+    "provisioners": [
+    {
+            "type": "ansible",
+            "playbook_file": "../ansible/ami.yml",
+            "user": "ec2-user"
+    }
+    ]
+}

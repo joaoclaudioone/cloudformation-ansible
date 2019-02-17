@@ -1,0 +1,6 @@
+---
+- name: Supervisord installation (Alpine)
+  pip: name=supervisor state=present
+
+- name: set restrictive permission to supervisorctl (Alpine)
+  file: dest=/usr/bin/supervisorctl mode=500 owner=root group=root

@@ -1,0 +1,29 @@
+---
+- name: installing ubuntu startup script (Ubuntu)
+  copy: src=etc/init.d/supervisord.sh.ubuntu dest=/etc/init.d/supervisord owner=root group=root mode=550
+  when: ansible_distribution == 'Ubuntu'
+
+- name: installing supervisord service config (Ubuntu)
+  copy: src=etc/init/supervisord-init.initconfig dest=/etc/init/supervisord.conf
+  when: ansible_distribution == 'Ubuntu'
+
+- name: copy supervisord default config file (Ubuntu)
+  copy: src=etc/supervisor/supervisord.conf dest=/etc/supervisor/supervisord.conf owner=root group=root mode=0400
+
+- name: install app startup config (Ubuntu)
+  action: template src=etc/supervisor/conf.d/template.conf dest=/etc/supervisor/conf.d/{{ app_name }}.conf owner=root group=root mode=0400
+  when: app_name == 'systems-engineer-interview'
+
+- name: set restrictive permission to supervisorctl (Ubuntu)
+  file: dest=/usr/local/bin/supervisorctl mode=500 owner=root group=root
+
+- name: creating symbolic link for supervisorctl (Ubuntu)
+  file: src=/usr/local/bin/supervisorctl dest=/usr/bin/supervisorctl state=link
+
+- name: configure supervisor startup service (Ubuntu)
+  shell: update-rc.d supervisord defaults
+  when: ansible_distribution == 'Ubuntu'
+
+- name: enabling supervisord service daemon (Ubuntu)
+  shell: update-rc.d supervisord enable
+  when: ansible_distribution == 'Ubuntu'

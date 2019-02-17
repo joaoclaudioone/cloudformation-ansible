@@ -1,0 +1,7 @@
+---
+- name: copy supervisord default config file
+  copy: src=etc/supervisor/supervisord.conf dest=/etc/supervisor/supervisord.conf owner=root group=root mode=0400
+
+- name: install app startup config
+  action: template src=etc/supervisor/conf.d/template.conf dest=/etc/supervisor/conf.d/{{ app_name }}.conf owner=root group=root mode=0400
+  when: app_name not in 'omega None'

@@ -1,0 +1,48 @@
+---
+- name: Supervisord installation (pip RedHat)
+  pip: name=supervisor
+
+- name: installing red hat startup script (RedHat)
+  copy: src=etc/init.d/supervisord.sh.redhat dest=/etc/init.d/supervisord owner=root group=root mode=550
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'
+
+- name: installing supervisord service config (RedHat)
+  copy: src=etc/sysconfig/supervisord.sysconfig dest=/etc/sysconfig/supervisord #owner=root group=root mode=550
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'
+
+- name: copy supervisord default config file (RedHat)
+  copy:
+    src: etc/supervisor/supervisord.conf
+    dest: /etc/supervisor/supervisord.conf
+    owner: root
+    group: root
+    mode: 0400
+
+- name: Install app startup config (RedHat)
+  action: template src=etc/supervisor/conf.d/template.conf dest=/etc/supervisor/conf.d/{{ app_name }}.conf owner=root group=root mode=0400
+  when: app_name == 'systems-engineer-interview'
+  tags:
+    - app_config
+
+- name: set restrictive permission to supervisorctl (RedHat)
+  file: dest=/usr/local/bin/supervisorctl mode=500 owner=root group=root
+  ignore_errors: yes
+
+- name: set restrictive permission to supervisorctl (RedHat)
+  file: dest=/usr/bin/supervisorctl mode=500 owner=root group=root
+  ignore_errors: yes
+
+- name: creating symbolic link for supervisorctl (RedHat)
+  file: src=/usr/bin/{{ item }} dest=/usr/local/bin/{{ item }} state=link
+  with_items:
+    - supervisorctl
+    - supervisord
+  ignore_errors: yes
+
+- name: configure supervisor startup service (Red Hat)
+  shell: chkconfig --levels 3 supervisord on
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'
+
+- name: change symlink
+  shell: unlink /etc/rc3.d/S83supervisord && ln -s /etc/init.d/supervisord /etc/rc3.d/S99supervisord
+  when: ansible_distribution == 'Amazon'

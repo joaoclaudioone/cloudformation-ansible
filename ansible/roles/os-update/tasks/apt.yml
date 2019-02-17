@@ -1,0 +1,19 @@
+- name: Aptitude
+  apt:
+    name: aptitude
+    update_cache: true
+
+- name: Kill apt
+  command: '{{ item }}'
+  ignore_errors: yes
+  with_items:
+    - 'pkill apt'
+    - 'sudo rm /var/lib/apt/lists/lock'
+    - 'sudo rm /var/cache/apt/archives/lock'
+    - 'sudo rm /var/lib/dpkg/lock'
+
+- name: Upgrade
+  apt:
+    upgrade: 'safe'
+    update_cache: true
+  ignore_errors: yes

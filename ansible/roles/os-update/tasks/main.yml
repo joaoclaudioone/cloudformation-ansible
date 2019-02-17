@@ -1,0 +1,8 @@
+---
+- name: Ubuntu
+  include: apt.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: RedHat / Amazon
+  include: yum.yml
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'

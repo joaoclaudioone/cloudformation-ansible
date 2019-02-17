@@ -1,0 +1,18 @@
+---
+- name: preparing system to install supervisor (creating dirs etc.)
+  include: pre_install.yml
+
+- name: Install main package (Ubuntu)
+  include: Ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install main package (RedHat)
+  include: RedHat.yml
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'
+
+- name: Install main package (Alpine)
+  include: Alpine.yml
+  when: ansible_distribution == 'Alpine'
+
+- name: Executing post install (configuring permissions and log dirs)
+  include: post_install.yml

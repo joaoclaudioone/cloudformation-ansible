@@ -8,3 +8,13 @@
   yum:
     name: "*"
     state: latest
+
+- name: uninstall java-1.7.0-openjdk
+  yum:
+    name: java-1.7.0-openjdk
+    state: absent
+
+- name: install java-1.8.0
+  yum:
+    name: java-1.8.0
+    state: latest

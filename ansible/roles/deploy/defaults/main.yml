@@ -1,3 +1,6 @@
 ---
 packages:
-  - { url: '{{ app_origin }}', mode: '0777', owner: '{{ app_user_adm }}', group: '{{ app_group_adm }}', dest: '{{ app_dest }}' }
+  - { url: '{{ app_origin }}', dest: '{{ app_dest }}', mode: '0444', owner: '{{ app_user_adm }}', group: '{{ app_group_adm }}' }
+
+appfiles:
+  - { src: 'app/bin/run.sh', dest: '{{ app_dest }}run.sh', mode: '0744', owner: '{{ app_user_adm }}', group: '{{ app_group_adm }}' }

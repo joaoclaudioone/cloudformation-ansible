@@ -1,3 +1,0 @@
----
-- name: Configuring App Startup - Supervisord
-  action: template src=app.conf dest=/etc/supervisor/conf.d/{{ project_name }}.conf owner=root group=root mode=0400

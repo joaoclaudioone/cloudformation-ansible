@@ -4,7 +4,7 @@
   vars:
     app_name: "systems-engineer-interview"
     app_origin: "***REMOVED*** "
-    app_dest: "/app/bin"
+    app_dest: "/app/bin/"
     app_user_adm: "appuser"
     app_group_adm: "appgroup"
   roles:

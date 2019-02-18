@@ -1,5 +1,4 @@
 #!/bin/bash
-
 cd /app/bin
 
 umask 027

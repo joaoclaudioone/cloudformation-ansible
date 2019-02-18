@@ -1,0 +1,20 @@
+---
+- name: launch ASG ansible cloudformation
+  cloudformation:
+    stack_name: "{{ stack_name }}"
+    state: "{{ state }}"
+    disable_rollback: true
+    template: "roles/cloudformation/templates/asg_template.yml"
+    template_parameters:
+      VpcId: "{{ vpc_id }}"
+      OperatorEMail: "{{ email }}"
+      Subnets: "{{ subnets }}"
+      KeyName: "{{ keyname }}"
+      ImageId: "{{ imageid }}"
+      InstanceType: "{{ instancetype }}"
+      Listener: "{{ alb_listener_port }}"
+      ALBTGPort: "{{ alb_tg_port }}"
+      AppPort: "{{ app_port }}"
+
+    tags:
+      Stack: "ansible-{{ stack_name}}"

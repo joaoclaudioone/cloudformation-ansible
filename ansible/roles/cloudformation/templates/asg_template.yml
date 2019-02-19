@@ -211,3 +211,37 @@ Resources:
           ToPort: !Ref ALBTGPort
           CidrIp: 0.0.0.0/0
       VpcId: !Ref VpcId
+  CloudFront:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Origins:
+        - DomainName: !GetAtt ApplicationLoadBalancer.DNSName
+          Id: !Ref KeyName
+          CustomOriginConfig:
+            HTTPPort: '8080'
+            HTTPSPort: '443'
+            OriginProtocolPolicy: http-only
+          OriginCustomHeaders:
+            - HeaderName: 'X-Glovo-Systems-Engineer-Candidate'
+              HeaderValue: '1'
+        Enabled: 'true'
+        DefaultCacheBehavior:
+          TargetOriginId: !Ref KeyName
+          SmoothStreaming: 'false'
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: allow-all
+        CustomErrorResponses:
+        - ErrorCode: '404'
+          ResponsePagePath: "/error-pages/404.html"
+          ResponseCode: '200'
+          ErrorCachingMinTTL: '30'
+        PriceClass: PriceClass_100
+        Restrictions:
+          GeoRestriction:
+            RestrictionType: none
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: 'true'

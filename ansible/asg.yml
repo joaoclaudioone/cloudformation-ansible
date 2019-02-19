@@ -8,8 +8,8 @@
     vpccidr: "10.192.0.0/16"
     email: "***REMOVED***"
     subnets: "subnet-0c270a57ab5e9f723, subnet-0d93c889dd9d3bb59"
-    keyname: "systems-engineer-interview"
-    imageid: "ami-01282bd6c0a3fb5e9"
+    keyname: "{{ keyname }}"
+    imageid: "{{ imageid }}"
     instancetype: "t3.micro"
     alb_listener_port: 8080
     alb_tg_port: 8080

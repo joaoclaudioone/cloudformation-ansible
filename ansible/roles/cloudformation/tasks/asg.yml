@@ -15,6 +15,7 @@
       Listener: "{{ alb_listener_port }}"
       ALBTGPort: "{{ alb_tg_port }}"
       AppPort: "{{ app_port }}"
+      VpcCIDR: "{{ vpccidr }}"
 
     tags:
       Stack: "ansible-{{ stack_name}}"

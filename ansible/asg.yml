@@ -14,7 +14,7 @@
     alb_listener_port: 8080
     alb_tg_port: 8080
     app_port: 8080
-    state: present
+    state: {{ state }}
 
   roles:
     - role: cloudformation

@@ -1,6 +1,6 @@
 .PHONY: all
 
-PROJECT_NAME=systems-engineer-interview
+PROJECT_NAME?=systems-engineer-interview
 VERSION?=
 VPCID=vpc-04c0e211aef7c4176
 BASE_AMI=ami-0080e4c5bc078760e

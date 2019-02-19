@@ -1,14 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: >-
-  AWS CloudFormation Sample Template AutoScalingMultiAZWithNotifications: Create
-  a multi-az, load balanced and Auto Scaled sample web site running on an Apache
-  Web Serever. The application is configured to span all Availability Zones in
-  the region and is Auto-Scaled based on the CPU utilization of the web servers.
-  Notifications will be sent to the operator email address on scaling events.
-  The instances are load balanced with a simple health check against the default
-  web page. **WARNING** This template creates one or more Amazon EC2 instances
-  and an Application Load Balancer. You will be billed for the AWS resources
-  used if you create a stack from this template.
+Description: This template create an alb, asg with a cpu based policy scaling
 Parameters:
   VpcId:
     Type: 'AWS::EC2::VPC::Id'
@@ -24,7 +15,7 @@ Parameters:
   InstanceType:
     Description: WebServer EC2 instance type
     Type: String
-    Default: t3.small
+    Default: c5.large
     ConstraintDescription: must be a valid EC2 instance type.
   Listener:
     Description: Listener Port
@@ -59,53 +50,13 @@ Parameters:
     Default: 0.0.0.0/0
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
-Mappings:
-  Region2Examples:
-    us-east-1:
-      Examples: 'https://s3.amazonaws.com/cloudformation-examples-us-east-1'
-    us-west-2:
-      Examples: 'https://s3-us-west-2.amazonaws.com/cloudformation-examples-us-west-2'
-    us-west-1:
-      Examples: 'https://s3-us-west-1.amazonaws.com/cloudformation-examples-us-west-1'
-    eu-west-1:
-      Examples: 'https://s3-eu-west-1.amazonaws.com/cloudformation-examples-eu-west-1'
-    eu-west-2:
-      Examples: 'https://s3-eu-west-2.amazonaws.com/cloudformation-examples-eu-west-2'
-    eu-west-3:
-      Examples: 'https://s3-eu-west-3.amazonaws.com/cloudformation-examples-eu-west-3'
-    eu-central-1:
-      Examples: >-
-        https://s3-eu-central-1.amazonaws.com/cloudformation-examples-eu-central-1
-    ap-southeast-1:
-      Examples: >-
-        https://s3-ap-southeast-1.amazonaws.com/cloudformation-examples-ap-southeast-1
-    ap-northeast-1:
-      Examples: >-
-        https://s3-ap-northeast-1.amazonaws.com/cloudformation-examples-ap-northeast-1
-    ap-northeast-2:
-      Examples: >-
-        https://s3-ap-northeast-2.amazonaws.com/cloudformation-examples-ap-northeast-2
-    ap-northeast-3:
-      Examples: >-
-        https://s3-ap-northeast-3.amazonaws.com/cloudformation-examples-ap-northeast-3
-    ap-southeast-2:
-      Examples: >-
-        https://s3-ap-southeast-2.amazonaws.com/cloudformation-examples-ap-southeast-2
-    ap-south-1:
-      Examples: 'https://s3-ap-south-1.amazonaws.com/cloudformation-examples-ap-south-1'
-    us-east-2:
-      Examples: 'https://s3-us-east-2.amazonaws.com/cloudformation-examples-us-east-2'
-    ca-central-1:
-      Examples: >-
-        https://s3-ca-central-1.amazonaws.com/cloudformation-examples-ca-central-1
-    sa-east-1:
-      Examples: 'https://s3-sa-east-1.amazonaws.com/cloudformation-examples-sa-east-1'
-    cn-north-1:
-      Examples: >-
-        https://s3.cn-north-1.amazonaws.com.cn/cloudformation-examples-cn-north-1
-    cn-northwest-1:
-      Examples: >-
-        https://s3.cn-northwest-1.amazonaws.com.cn/cloudformation-examples-cn-northwest-1
+  VpcCIDR:
+    Description: The range of IP of the Vpc
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 Resources:
   NotificationTopic:
     Type: 'AWS::SNS::Topic'
@@ -113,13 +64,15 @@ Resources:
       Subscription:
         - Endpoint: !Ref OperatorEMail
           Protocol: email
-  AppGroup:
+  AutoScalingGroup:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       VPCZoneIdentifier: !Ref Subnets
-      LaunchConfigurationName: !Ref LaunchConfig
+      LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: '1'
       MaxSize: '3'
+      MetricsCollection:
+        - Granularity: '1Minute'
       TargetGroupARNs:
         - !Ref ALBTargetGroup
       NotificationConfiguration:
@@ -130,8 +83,8 @@ Resources:
           - 'autoscaling:EC2_INSTANCE_TERMINATE'
           - 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR'
     CreationPolicy:
-      ResourceSignal:
-        Timeout: PT15M
+       ResourceSignal:
+        Timeout: PT10M
         Count: '1'
     UpdatePolicy:
       AutoScalingRollingUpdate:
@@ -139,7 +92,7 @@ Resources:
         MaxBatchSize: '1'
         PauseTime: PT15M
         WaitOnResourceSignals: 'true'
-  LaunchConfig:
+  LaunchConfiguration:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
     Properties:
       KeyName: !Ref KeyName
@@ -147,28 +100,35 @@ Resources:
       SecurityGroups:
         - !Ref InstanceSecurityGroup
       InstanceType: !Ref InstanceType
-      UserData: !Base64
-        'Fn::Join':
-          - ''
-          - - |
-              #!/bin/bash -xe
-            - |
-              chown appuser:appgroup /app/bin/run.sh
-            - |
+      UserData:
+        'Fn::Base64':
+          !Sub |
+            #!/bin/bash -xe
+            # update aws packages
+            yum update -y aws-cfn-bootstrap aws-cli
+            #sending signals to cloudformation
+            /opt/aws/bin/cfn-signal -e $? \
+            --stack ${AWS::StackName} \
+            --resource AutoScalingGroup \
+            --region ${AWS::Region}
+            # set app permissions
+            chown appuser:appgroup /app/bin/run.sh
+            # restart Application
+            supervisorctl restart all
 
-  AppScaleUpPolicy:
+  ScalingPolicyUp:
     Type: 'AWS::AutoScaling::ScalingPolicy'
     Properties:
       AdjustmentType: ChangeInCapacity
-      AutoScalingGroupName: !Ref AppGroup
-      Cooldown: '60'
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      Cooldown: '300'
       ScalingAdjustment: '1'
-  AppScaleDownPolicy:
+  ScaleDownPolicyDown:
     Type: 'AWS::AutoScaling::ScalingPolicy'
     Properties:
       AdjustmentType: ChangeInCapacity
-      AutoScalingGroupName: !Ref AppGroup
-      Cooldown: '60'
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      Cooldown: '300'
       ScalingAdjustment: '-1'
   CPUAlarmHigh:
     Type: 'AWS::CloudWatch::Alarm'
@@ -181,10 +141,10 @@ Resources:
       EvaluationPeriods: '2'
       Threshold: '90'
       AlarmActions:
-        - !Ref AppScaleUpPolicy
+        - !Ref ScalingPolicyUp
       Dimensions:
         - Name: AutoScalingGroupName
-          Value: !Ref AppGroup
+          Value: !Ref AutoScalingGroup
       ComparisonOperator: GreaterThanThreshold
   CPUAlarmLow:
     Type: 'AWS::CloudWatch::Alarm'
@@ -197,15 +157,17 @@ Resources:
       EvaluationPeriods: '2'
       Threshold: '70'
       AlarmActions:
-        - !Ref AppScaleDownPolicy
+        - !Ref ScaleDownPolicyDown
       Dimensions:
         - Name: AutoScalingGroupName
-          Value: !Ref AppGroup
+          Value: !Ref AutoScalingGroup
       ComparisonOperator: LessThanThreshold
   ApplicationLoadBalancer:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
       Subnets: !Ref Subnets
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
   ALBListener:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
@@ -231,24 +193,21 @@ Resources:
       GroupDescription: Enable SSH access and HTTP from the load balancer only
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
+          FromPort: 22
+          ToPort: 22
           CidrIp: !Ref SSHLocation
         - IpProtocol: tcp
           FromPort: !Ref AppPort
           ToPort: !Ref AppPort
-          SourceSecurityGroupId: !Select
-            - 0
-            - !GetAtt
-              - ApplicationLoadBalancer
-              - SecurityGroups
+          CidrIp: !Ref VpcCIDR
       VpcId: !Ref VpcId
-Outputs:
-  URL:
-    Description: The URL of the website
-    Value: !Join
-      - ''
-      - - 'http://'
-        - !GetAtt
-          - ApplicationLoadBalancer
-          - DNSName
+  ALBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable access from internet
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ALBTGPort
+          ToPort: !Ref ALBTGPort
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VpcId

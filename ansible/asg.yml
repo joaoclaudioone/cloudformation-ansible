@@ -2,19 +2,17 @@
 
 - hosts: localhost
   vars:
-    stack_name: "asg-cloudformation"
-    env: "dev"
-    vpc_id: "vpc-04c0e211aef7c4176"
-    vpccidr: "10.192.0.0/16"
-    email: "***REMOVED***"
-    subnets: "subnet-0c270a57ab5e9f723, subnet-0d93c889dd9d3bb59"
+    stack_name: "{{ stack_name }}"
+    state: "{{ state }}"
+    email: "{{ email }}"
     keyname: "{{ keyname }}"
     imageid: "{{ imageid }}"
-    instancetype: "t3.micro"
-    alb_listener_port: 8080
+    instancetype: "{{ instancetype }}"
+    alb_listener_port: 80
     alb_tg_port: 8080
     app_port: 8080
-    state: {{ state }}
+    vpc_stack: "{{ vpc_stack }}"
+    vpccidr: "{{ vpccidr }}"
 
   roles:
     - role: cloudformation

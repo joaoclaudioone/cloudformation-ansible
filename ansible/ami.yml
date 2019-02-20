@@ -4,7 +4,7 @@
   vars:
     app_name: "{{ keyname }}"
     app_origin: "{{ app_origin }}"
-    app_dest: "/app/bin"
+    app_dest: "/app/bin/"
     app_user_adm: "appuser"
     app_group_adm: "appgroup"
   roles:

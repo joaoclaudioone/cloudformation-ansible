@@ -18,14 +18,8 @@
     group: '{{ item.group }}'
     mode: '{{ item.mode }}'
   with_items: '{{ appfiles }}'
-  when: app_name == 'systems-engineer-interview'
 
 - name: install dos2unix
   yum:
     name: dos2unix
     state: latest
-  when: app_name == 'systems-engineer-interview'
-
-- name: convert run.sh to dos2unix
-  shell: dos2unix /app/bin/run.sh
-  when: app_name == 'systems-engineer-interview'

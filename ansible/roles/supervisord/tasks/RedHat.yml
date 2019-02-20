@@ -20,7 +20,6 @@
 
 - name: Install app startup config (RedHat)
   action: template src=etc/supervisor/conf.d/template.conf dest=/etc/supervisor/conf.d/{{ app_name }}.conf owner=root group=root mode=0400
-  when: app_name == 'systems-engineer-interview'
   tags:
     - app_config
 

@@ -1,12 +1,12 @@
 ---
 - name: Create VPC Stack
-  include: vpc.yml
+  include: rol_vpc.yml
   when: create_vpc is defined and create_vpc
   tags:
     - create_vpc
 
 - name: Create ASG stack
-  include: asg.yml
-  when: create_asg
+  include: rol_asg.yml
+  when: create_asg is defined and create_asg
   tags:
     - create_asg is defined and create_asg

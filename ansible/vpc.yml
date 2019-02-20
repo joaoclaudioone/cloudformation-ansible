@@ -2,14 +2,14 @@
 
 - hosts: localhost
   vars:
-    stack_name: "vpc-cloudformation"
-    env: "dev"
-    region: "us-east-1"
-    vpccidr: "10.192.0.0/16"
-    pub_sub_1: "10.192.10.0/24"
-    pub_sub_2: "10.192.11.0/24"
-    priv_sub_1: "10.192.20.0/24"
-    priv_sub_2: "10.192.21.0/24"
+    stack_name: "{{ stack_name }}"
+    env: "{{ keyname }}"
+    region: "{{ region }}"
+    vpccidr: "{{ vpccidr }}"
+    pub_sub_1: "{{ pub_sub_1 }}"
+    pub_sub_2: "{{ pub_sub_2 }}"
+    priv_sub_1: "{{ priv_sub_1 }}"
+    priv_sub_2: "{{ priv_sub_2 }}"
     state: "{{ state }}"
 
   roles:

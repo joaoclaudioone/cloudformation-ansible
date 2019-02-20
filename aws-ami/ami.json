@@ -8,7 +8,7 @@
         "aws_region": "{{env `aws_region`}}",
         "ssh_username": "ec2-user",
         "version": "",
-        "ami_label": "sys-engineer"
+        "ami_label": ""
     },
     "builders": [{
         "type": "amazon-ebs",
@@ -18,10 +18,10 @@
         "secret_key": "{{user `aws_secret_key`}}",
         "region": "{{ user `aws_region`}}",
         "source_ami": "{{ user `aws_ami`}}",
-        "instance_type": "t3.micro",
+        "instance_type": "{{user `instance_type`}}",
         "ssh_username": "{{user `ssh_username`}}",
-        "ami_name": "{{user `ami_label`}}-{{user `version`}}",
-        "ami_description": "System engineer deploy",
+        "ami_name": "{{user `project_name`}}-{{user `version`}}",
+        "ami_description": "base {{user `project_name`}} ami",
         "vpc_id": "{{user `aws_vpc_id`}}",
         "subnet_id": "{{user `aws_subnet_id`}}",
         "spot_price": "auto",
@@ -33,8 +33,8 @@
             "delete_on_termination": true
         }],
         "tags": {
-            "Name": "ami-deploy",
-            "project": "system-engineer",
+            "Name": "{{user `project_name`}}",
+            "project": "{{user `project_name`}}",
             "version": "{{user `version`}}",
             "created_at": "v{{isotime \"200601021504\"}}"
         }
@@ -42,8 +42,9 @@
     "provisioners": [
     {
             "type": "ansible",
-            "playbook_file": "../ansible/ami.yml",
-            "user": "ec2-user"
+            "playbook_file": "ansible/ami.yml",
+            "user": "ec2-user",
+            "extra_arguments": [ "--extra-vars", "app_origin={{user `app_origin`}} keyname={{user `keyname`}}"]
     }
     ]
 }

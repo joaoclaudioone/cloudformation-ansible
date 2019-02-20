@@ -37,7 +37,7 @@ asg:
 	imageid=${LC_AMI} keyname=${PROJECT_NAME} instancetype=${INSTANCE_TYPE} state=${STATE} \
 	vpc_stack=vpc-${PROJECT_NAME} vpccidr=${VPCCIDR} email=${EMAIL}" ansible/asg.yml
 
-destroy: key-destroy vpc-destroy asg-destroy
+destroy: key-destroy asg-destroy vpc-destroy 
 
 key-destroy:
 	aws ec2 delete-key-pair --key-name ${PROJECT_NAME}
@@ -45,10 +45,12 @@ key-destroy:
 
 vpc-destroy:
 	$(eval STATE=absent)
-	ansible-playbook -e "stack_name=vpc-${PROJECT_NAME} keyname=${ PROJECT_NAME } \
+	ansible-playbook -e "stack_name=vpc-${PROJECT_NAME} keyname=${PROJECT_NAME} \
 	region=${REGION} vpccidr=${VPCCIDR} pub_sub_1=${PUB_SUB_1} pub_sub_2=${PUB_SUB_2} \
 	priv_sub_1=${PRIV_SUB_1} priv_sub_2=${PRIV_SUB_2} state=${STATE}" ansible/vpc.yml
 
 asg-destroy:
 	$(eval STATE=absent)
-	ansible-playbook ansible/asg.yml -e "keyname=${PROJECT_NAME} imageid=${LC_AMI} state=${STATE}"
+	ansible-playbook -e "stack_name=asg-${PROJECT_NAME} keyname=${PROJECT_NAME} \
+	imageid=${LC_AMI} keyname=${PROJECT_NAME} instancetype=${INSTANCE_TYPE} state=${STATE} \
+	vpc_stack=vpc-${PROJECT_NAME} vpccidr=${VPCCIDR} email=${EMAIL}" ansible/asg.yml

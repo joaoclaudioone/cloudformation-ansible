@@ -4,7 +4,7 @@ PROJECT?=system-engineer
 include vars/system-engineer
 export
 
-all: vpc key ami
+all: vpc key ami asg
 
 vpc:
 	ansible-playbook -e "stack_name=vpc-${PROJECT_NAME} keyname=${PROJECT_NAME} \

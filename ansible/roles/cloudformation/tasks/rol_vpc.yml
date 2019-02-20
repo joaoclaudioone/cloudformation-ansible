@@ -1,0 +1,18 @@
+---
+- name: launch vpc ansible cloudformation
+  cloudformation:
+    stack_name: "{{ stack_name }}"
+    state: "{{ state }}"
+    region: "{{ region }}"
+    disable_rollback: true
+    template: "roles/cloudformation/templates/vpc_cloudformation_template.yml"
+    template_parameters:
+      EnvironmentName: "{{ env }}"
+      VpcCIDR: "{{ vpccidr }}"
+      PublicSubnet1CIDR: "{{ pub_sub_1 }}"
+      PublicSubnet2CIDR: "{{ pub_sub_2 }}"
+      PrivateSubnet1CIDR: "{{ priv_sub_1 }}"
+      PrivateSubnet2CIDR: "{{ priv_sub_2 }}"
+
+    tags:
+      Stack: "ansible-{{ stack_name}}"

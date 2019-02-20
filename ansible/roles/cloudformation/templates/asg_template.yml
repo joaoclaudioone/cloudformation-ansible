@@ -1,17 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: This template create an alb, asg with a cpu based policy scaling
 Parameters:
-  VpcId:
-    Type: 'AWS::EC2::VPC::Id'
-    Description: VpcId of your existing Virtual Private Cloud (VPC)
-    ConstraintDescription: must be the VPC Id of an existing Virtual Private Cloud.
-  Subnets:
-    Type: 'List<AWS::EC2::Subnet::Id>'
-    Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
-    ConstraintDescription: >-
-      must be a list of at least two existing subnets associated with at least
-      two different availability zones. They should be residing in the selected
-      Virtual Private Cloud.
+  ParentVPCStack:
+    Description: Stack created with cloudformation that has our network informations
+    Type: String
   InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -20,7 +12,7 @@ Parameters:
   Listener:
     Description: Listener Port
     Type: String
-    Default: 8080
+    Default: 80
   ALBTGPort:
     Description: ApplicationLoadBalancer Port
     Type: String
@@ -67,7 +59,7 @@ Resources:
   AutoScalingGroup:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
-      VPCZoneIdentifier: !Ref Subnets
+      VPCZoneIdentifier: [{'Fn::ImportValue': !Sub '${ParentVPCStack}-PublicSubnets'}]
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: '1'
       MaxSize: '3'
@@ -111,6 +103,8 @@ Resources:
             --stack ${AWS::StackName} \
             --resource AutoScalingGroup \
             --region ${AWS::Region}
+            #dos2unix
+            dos2unix /app/bin/run.sh
             # set app permissions
             chown appuser:appgroup /app/bin/run.sh
             # restart Application
@@ -165,7 +159,10 @@ Resources:
   ApplicationLoadBalancer:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Subnets: !Ref Subnets
+      Subnets: !Split
+         - ","
+         - Fn::ImportValue:
+             !Sub '${ParentVPCStack}-PublicSubnets'
       SecurityGroups:
         - !Ref ALBSecurityGroup
   ALBListener:
@@ -186,7 +183,7 @@ Resources:
       Port: !Ref ALBTGPort
       Protocol: HTTP
       UnhealthyThresholdCount: 5
-      VpcId: !Ref VpcId
+      VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPCID'}
   InstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -200,17 +197,17 @@ Resources:
           FromPort: !Ref AppPort
           ToPort: !Ref AppPort
           CidrIp: !Ref VpcCIDR
-      VpcId: !Ref VpcId
+      VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPCID'}
   ALBSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: Enable access from internet
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: !Ref ALBTGPort
+          FromPort: !Ref Listener
           ToPort: !Ref ALBTGPort
           CidrIp: 0.0.0.0/0
-      VpcId: !Ref VpcId
+      VpcId: {'Fn::ImportValue': !Sub '${ParentVPCStack}-VPCID'}
   CloudFront:
     Type: 'AWS::CloudFront::Distribution'
     Properties:
@@ -219,7 +216,7 @@ Resources:
         - DomainName: !GetAtt ApplicationLoadBalancer.DNSName
           Id: !Ref KeyName
           CustomOriginConfig:
-            HTTPPort: '8080'
+            HTTPPort: !Ref Listener
             HTTPSPort: '443'
             OriginProtocolPolicy: http-only
           OriginCustomHeaders:

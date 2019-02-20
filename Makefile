@@ -32,12 +32,12 @@ ami:
 	 -var app_user_adm=${APP_USER} -var app_group_adm=${APP_GROUP} aws-ami/ami.json
 
 asg:
-	LC_AMI=$(shell aws ec2 describe-images --filters "Name=tag-key,Values=Name" "Name=tag-value,Values=${PROJECT_NAME}" --query 'sort_by(Images, &CreationDate)[].ImageId' --output text | grep -m5 "ami")
+	$(eval LC_AMI=$(shell aws ec2 describe-images --filters "Name=tag-key,Values=Name" "Name=tag-value,Values=${PROJECT_NAME}" "Name=tag-key,Values=version" "Name=tag-value,Values=${VERSION}" --query 'sort_by(Images, &CreationDate)[].ImageId' --output text | grep -m5 "ami"))
 	ansible-playbook -e "stack_name=asg-${PROJECT_NAME} keyname=${PROJECT_NAME} \
 	imageid=${LC_AMI} keyname=${PROJECT_NAME} instancetype=${INSTANCE_TYPE} state=${STATE} \
 	vpc_stack=vpc-${PROJECT_NAME} vpccidr=${VPCCIDR} email=${EMAIL}" ansible/asg.yml
 
-destroy: key-destroy vpc-destroy
+destroy: key-destroy vpc-destroy asg-destroy
 
 key-destroy:
 	aws ec2 delete-key-pair --key-name ${PROJECT_NAME}

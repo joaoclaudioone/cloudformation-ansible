@@ -44,7 +44,7 @@
             "type": "ansible",
             "playbook_file": "ansible/ami.yml",
             "user": "ec2-user",
-            "extra_arguments": [ "--extra-vars", "app_origin={{user `app_origin`}} keyname={{user `keyname`}}"]
+            "extra_arguments": [ "--extra-vars", "app_origin={{user `app_origin`}} keyname={{user `project_name`}}"]
     }
     ]
 }

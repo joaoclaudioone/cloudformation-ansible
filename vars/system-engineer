@@ -1,10 +1,11 @@
+.PHONY: all
 PROJECT_NAME=system-engineer
 STATE=present
 
 #AMI
 BASE_AMI=ami-0ff8a91507f77f867
-VERSION?=0.1
-LC_AMI=$(shell aws ec2 describe-images --filters "Name=tag-key,Values=Name" "Name=tag-value,Values=${PROJECT_NAME}" --query 'sort_by(Images, &CreationDate)[].ImageId' --output text | grep -m5 "ami")
+VERSION?=0.3
+LC_AMI=$(shell aws ec2 describe-images --filters "Name=tag-key,Values=Name" "Name=tag-value,Values=${PROJECT_NAME}" "Name=tag-key,Values=version" "Name=tag-value,Values=${VERSION}" --query 'sort_by(Images, &CreationDate)[].ImageId' --output text | grep -m5 "ami")
 INSTANCE_TYPE=t3.small
 
 #VPC
@@ -15,7 +16,7 @@ PUB_SUB_2=10.192.10.16/28
 PRIV_SUB_1=10.192.10.32/28
 PRIV_SUB_2=10.192.10.48/28
 VPCID=$(shell aws cloudformation --region us-east-1 describe-stacks --stack-name vpc-${PROJECT_NAME} --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
-SUBNETID=$(aws cloudformation --region us-east-1 describe-stacks --stack-name vpc-${PROJECT_NAME} --query 'Stacks[0].Outputs[?OutputKey==`PrivateSubnet1`].OutputValue' --output text)
+SUBNETID=$(shell aws cloudformation --region us-east-1 describe-stacks --stack-name vpc-${PROJECT_NAME} --query 'Stacks[0].Outputs[?OutputKey==`PrivateSubnet1`].OutputValue' --output text)
 
 #APP
 APP_ORIGIN="https://s3-eu-west-1.amazonaws.com/glovo-public/systems-engineer-interview-1.0-SNAPSHOT.jar"

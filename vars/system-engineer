@@ -19,9 +19,9 @@ VPCID=$(shell aws cloudformation --region us-east-1 describe-stacks --stack-name
 SUBNETID=$(shell aws cloudformation --region us-east-1 describe-stacks --stack-name vpc-${PROJECT_NAME} --query 'Stacks[0].Outputs[?OutputKey==`PrivateSubnet1`].OutputValue' --output text)
 
 #APP
-APP_ORIGIN="***REMOVED***"
+APP_ORIGIN="https://s3-eu-west-1.amazonaws.com/glovo-public/systems-engineer-interview-1.0-SNAPSHOT.jar"
 APP_USER=appuser
 APP_GROUP=appgroup
 
 #ASG
-EMAIL="***REMOVED***"
+EMAIL="joaoclaudiobr@gmail.com"

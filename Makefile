@@ -4,7 +4,7 @@ PROJECT?=system-engineer
 include vars/system-engineer
 export
 
-all: vpc key ami
+all: vpc key ami asg
 
 vpc:
 	ansible-playbook -e "stack_name=vpc-${PROJECT_NAME} keyname=${PROJECT_NAME} \
@@ -37,7 +37,7 @@ asg:
 	imageid=${LC_AMI} keyname=${PROJECT_NAME} instancetype=${INSTANCE_TYPE} state=${STATE} \
 	vpc_stack=vpc-${PROJECT_NAME} vpccidr=${VPCCIDR} email=${EMAIL}" ansible/asg.yml
 
-destroy: key-destroy asg-destroy vpc-destroy 
+destroy: key-destroy asg-destroy vpc-destroy
 
 key-destroy:
 	aws ec2 delete-key-pair --key-name ${PROJECT_NAME}

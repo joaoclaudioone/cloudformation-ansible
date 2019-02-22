@@ -7,7 +7,6 @@ Role Variables
 --------------
 app_name
 
-
 License
 -------
 

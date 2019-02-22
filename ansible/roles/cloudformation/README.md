@@ -3,11 +3,6 @@ VPC
 
 Role that create a vpc stack on cloudformation.
 
-Requirements
-------------
-
-An AWS account 
-
 Role Variables
 --------------
 
@@ -23,16 +18,6 @@ alb_tg_port
 app_port
 vpc_stack
 vpccidr
-
-Example Playbook
-----------------
-
-This role is used with a playbook passing the Variables
-- hosts: localhost
-  vars:
-    stack_name: "{{ stack_name }}"
-    state: "{{ state }}"
-    email: "{{ email }}"
 
 License
 -------

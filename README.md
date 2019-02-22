@@ -2,6 +2,9 @@ Deploy applications
 =========
 
 This repository has a package of scripts to deploy an application in AWS using Clouformation stacks.
+I choosed to use ansible to manage the cloudformation templates, because I think would be easyer than using awscli
+A Makefile is a easy and powerful tool to orchestrate this process. You can add options faster and accept external parameters
+
 
 Requirements
 ------------

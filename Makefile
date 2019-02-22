@@ -1,6 +1,7 @@
 .PHONY: all
 
-PROJECT?=system-engineer #filnename in vars directory with the configuration
+#filnename in vars directory with the configuration
+PROJECT?=system-engineer
 include vars/${PROJECT}
 export
 
@@ -13,7 +14,6 @@ vpc: # create an vpc and network with ansible playbook
 	region=${REGION} vpccidr=${VPCCIDR} pub_sub_1=${PUB_SUB_1} pub_sub_2=${PUB_SUB_2} \
 	priv_sub_1=${PRIV_SUB_1} priv_sub_2=${PRIV_SUB_2} state=${STATE}" ansible/vpc.yml
 
-<<<<<<< HEAD
 key: #create an ssh key and register this key in aws
 	if [ ! -d "keys/" ]; then \
 	      mkdir keys; \
